@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Activities {
+  id             Int              @id(map: "Activities_pk") @default(autoincrement())
+  name           String           @unique @db.VarChar(256)
+  category       String              
+  pts            Int              @default(0)
+  UserActivities UserActivities[]
+}
+
+model Sessions {
+  id     Int    @id(map: "Sessions_pk") @default(autoincrement())
+  token  String @unique @db.VarChar(200)
+  userId Int
+  Users  Users  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Sessions_fk0")
+}
+
+model UserActivities {
+  id           Int        @id(map: "UserActivities_pk") @default(autoincrement())
+  userId       Int
+  activityId   Int
+  status       String     @db.VarChar(30)
+  activityDate String     @db.VarChar(255)
+  created_at   String     @default(dbgenerated("now()")) @db.VarChar(255)
+  Activities   Activities @relation(fields: [activityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "UserActivities_fk1")
+  Users        Users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "UserActivities_fk0")
+}
+
+model Users {
+  id             Int              @id(map: "Users_pk") @default(autoincrement())
+  name           String           @unique @db.VarChar(100)
+  email          String           @unique @db.VarChar(100)
+  password       String           @db.VarChar(100)
+  house          String           @db.VarChar(30)
+  department     String           @db.VarChar(20)
+  role           String           @db.VarChar(20)
+  isFirstAccess  Boolean          @default(true)
+  Sessions       Sessions[]
+  UserActivities UserActivities[]
+}
